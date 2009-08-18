@@ -5,7 +5,7 @@ This is a simple password safe I hacked together in a few minutes. It uses the r
 ## Using sekritz
 	$ sekritz 
 	Usage:
-	  sekritz [-a] KEY                         Simple Password Safe
+	  sekritz [OPTION...] key                 Simple Password Safe
 	
 	Options:
 	  -a, --add      add or update the values for the given keys

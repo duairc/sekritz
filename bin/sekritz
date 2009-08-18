@@ -27,7 +27,7 @@ end
 
 def help
 	puts "Usage:"
-	puts "  sekritz [-a] KEY                         Simple Password Safe"
+	puts "  sekritz [OPTION...] key                  Simple Password Safe"
 	puts ""
 	puts "Options:"
 	puts "  -a, --add      add or update the values for the given keys"
@@ -47,16 +47,16 @@ def list
 	exit
 end
 
-def write(output = "added")
+def write(verb)
 	data = GPGME.encrypt(nil, passwords.to_yaml)
 	File.open('passwords', 'w'){|file| file.write(data)}
-	puts "Password #{output}."
+	puts "Password #{verb}."
 	exit
 end
 
 def add(key = ARGV[0] || help)
 	passwords[key] = read_password
-	write
+	write("added")
 end
 
 def delete(key = ARGV[0] || help)
@@ -73,7 +73,7 @@ dir = File.join(ENV['XDG_DATA_HOME'] || "#{ENV['HOME']}/.local/share", 'sekritz'
 mkdir_p(dir)
 cd(dir)
 
-case ARGV.find{|a| ARGV.delete(a) if a =~ /\-/}
+case ARGV.find{|a| ARGV.delete(a) if a =~ /^-/}
  	when '-h', '--help' then help
 	when '-l', '--list' then list
 	when '-a', '--add' then add
