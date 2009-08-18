@@ -10,6 +10,7 @@ This is a simple password safe I hacked together in a few minutes. It uses the r
 	Options:
 	  -a, --add      add or update the values for the given keys
 	  -l, --list     list all passwords stored by sekrit
+	  -d, --delete   deletes the password for the given key
 	  -h, --help     display this help message
 	  -p, --print    print the password for the given key (default)
 
