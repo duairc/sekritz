@@ -1,0 +1,32 @@
+# Sekritz - a simple password safe
+
+This is a simple password safe I hacked together in a few minutes. It uses the ruby-gpgme library and your GPG keys to encrypt and decrypt a key-value store of passwords.
+
+## Using sekritz
+	$ sekritz 
+	Usage:
+	  sekritz [-a] KEY                         Simple Password Safe
+	
+	Options:
+	  -a, --add      add or update the values for the given keys
+	  -l, --list     list all passwords stored by sekrit
+	  -h, --help     display this help message
+	  -p, --print    print the password for the given key (default)
+
+### Adding passwords
+	$ sekritz --add root
+	Password: 
+	Confirm: 
+	Password added.
+
+### Retrieving passwords
+	$ sekritz root
+	god
+	$ sekritz --list
+	root: god
+	user: password
+
+Note that `gpg-agent` will prompt you to enter the passphrase for your GPG key to decrypt the password safe for all of the above commands.
+
+# Disclaimer
+While `sekritz` stores your passwords in an encrypted file, it doesn't do anything special to make sure that your passwords cannot be retrieved from memory after using `sekritz`. If you're paranoid then you should probably be using a real password safe - this is just something I hacked together very quickly.

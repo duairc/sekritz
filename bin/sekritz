@@ -1,0 +1,82 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+require 'gpgme'
+require 'yaml'
+include FileUtils
+
+class DifferentPasswords < Exception; end
+
+def read_password
+	begin
+		`stty -echo`
+		print "Password: "
+		password = STDIN.gets.strip
+		print "\n"
+		print "Confirm: "
+		confirm = STDIN.gets.strip
+		print "\n"
+		raise DifferentPasswords if confirm != password
+		password
+	rescue DifferentPasswords
+		puts "Sorry, passwords do not match. Try again:"
+		retry
+	ensure
+		`stty echo`
+	end
+end
+
+def help
+	puts "Usage:"
+	puts "  sekritz [-a] KEY                         Simple Password Safe"
+	puts ""
+	puts "Options:"
+	puts "  -a, --add      add or update the values for the given keys"
+	puts "  -d, --delete   deletes the password for the given key"
+	puts "  -l, --list     list the passwords that sekritz stores"
+	puts "  -h, --help     display this help message"
+	puts "  -p, --print    print the password for the given key (default)"
+	exit
+end
+
+def passwords
+	$passwords ||= (YAML.load(GPGME.decrypt(File.read('passwords'))) rescue {})
+end
+
+def list
+	print passwords.sort.map{|k, v| "#{k}: #{v}\n"}.join
+	exit
+end
+
+def write(output = "added")
+	data = GPGME.encrypt(nil, passwords.to_yaml)
+	File.open('passwords', 'w'){|file| file.write(data)}
+	puts "Password #{output}."
+	exit
+end
+
+def add(key = ARGV[0] || help)
+	passwords[key] = read_password
+	write
+end
+
+def delete(key = ARGV[0] || help)
+	passwords.delete(key)
+	write("removed")
+end
+
+def display(key = ARGV[0] || help)
+	puts passwords[key] || "No key for #{key}."
+	exit
+end
+
+dir = File.join(ENV['XDG_DATA_HOME'] || "#{ENV['HOME']}/.local/share", 'sekritz')
+mkdir_p(dir)
+cd(dir)
+
+case ARGV.find{|a| ARGV.delete(a) if a =~ /\-/}
+ 	when '-h', '--help' then help
+	when '-l', '--list' then list
+	when '-a', '--add' then add
+	when '-d', '--delete' then delete
+	else display
+end
